@@ -5,7 +5,7 @@ from time import sleep
 from gi.repository import Gtk
 from gi.repository import GdkPixbuf
 from gi.repository import Gdk
-import douane.gui.helpers
+from . import helpers
 
 class Operation(threading._Timer):
     def __init__(self, *args, **kwargs):
@@ -195,7 +195,7 @@ class GtkTwitterBox(Gtk.Box):
         label_tweet_header.set_alignment(0.0, 0.5)
         hbox_tweet_header.pack_start(label_tweet_header, True, True, 0)
         # Tweet Since
-        label_tweet_since = Gtk.Label(douane.gui.helpers.distance_of_time_in_words(tweet.created_at))
+        label_tweet_since = Gtk.Label(helpers.distance_of_time_in_words(tweet.created_at))
         hbox_tweet_header.pack_start(label_tweet_since, False, True, 0)
         vbox_tweet_content.pack_start(hbox_tweet_header, False, True, 0)
 
