@@ -1,6 +1,7 @@
 import threading
 import urllib.request
 import json
+import os
 from time import sleep
 from gi.repository import Gtk
 from gi.repository import GdkPixbuf
@@ -139,7 +140,9 @@ class GtkTwitterBox(Gtk.Box):
     def build_box_header(self):
         hbox_header = Gtk.Box(margin_bottom=20, orientation=Gtk.Orientation.HORIZONTAL)
         image_twitter_logo = Gtk.Image(margin_left=80)
-        image_twitter_logo.set_from_file("/home/zedtux/Developments/Douane/configurator/data/twitter-bird-light-bgs.png")
+        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "media", "twitter-bird-light-bgs.png")
+        print(icon_path)
+        image_twitter_logo.set_from_file(icon_path)
         image_twitter_logo.set_alignment(0.0, 0.5)
         hbox_header.pack_start(image_twitter_logo, False, True, 10)
         label_twitter_presentation = Gtk.Label()
