@@ -3,6 +3,7 @@ import urllib.request
 import json
 import os
 import sys
+import socket
 from time import sleep
 from gi.repository import Gtk
 from gi.repository import GdkPixbuf
