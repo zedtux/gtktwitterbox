@@ -2,15 +2,25 @@ import threading
 import urllib.request
 import json
 import os
+import sys
 from time import sleep
 from gi.repository import Gtk
 from gi.repository import GdkPixbuf
 from gi.repository import Gdk
 from . import helpers
 
-class Operation(threading._Timer):
+### Compatibility
+# Copied/pasted from https://bitbucket.org/cherrypy/cherrypy/commits/01b6adcb3849
+if sys.version_info >= (3,3):
+    Timer = threading.Timer
+else:
+    # Python 3.2 and earlier
+    Timer = threading._Timer
+###
+
+class Operation(Timer):
     def __init__(self, *args, **kwargs):
-        threading._Timer.__init__(self, *args, **kwargs)
+        Timer.__init__(self, *args, **kwargs)
         self.setDaemon(True)
 
     def run(self):
