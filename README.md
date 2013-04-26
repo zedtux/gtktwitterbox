@@ -6,6 +6,12 @@
 
 This GTK 3 module written in python 3 will show the 5 latest tweets of a given account and refresh X given seconds.
 
+#### Python PEP8 and GtkTwitterBox
+
+I'm not a python expert developer, I'm just doing python at home so I didn't spent time to have compliant code with PEP8.
+
+I have plan to do that later on but if an expert is passing here and wants to contribute, it will be welcome!
+
 ## Screenshot
 
 I am using it for my application Douane and here it is how it looks like:
