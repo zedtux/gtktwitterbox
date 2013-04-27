@@ -179,8 +179,10 @@ class GtkTwitterBox(Gtk.Box):
             self.__is_loading = False
             self.remove(self.__loading_widget)
 
+        Gdk.threads_enter()
         for tweet in new_tweets:
             self.pack_start(self.build_tweet_box(tweet), False, True, 0)
+        Gdk.threads_leave()
 
     def build_tweet_box(self, tweet):
         # Fetch avatar from URL
