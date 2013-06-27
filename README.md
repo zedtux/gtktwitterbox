@@ -16,7 +16,7 @@ I have plan to do that later on but if an expert is passing here and wants to co
 
 ## Screenshot
 
-I am using it for my application Douane and here it is how it looks like:
+I am using it for my application [Douane configurator](https://github.com/zedtux/douane-configurator) and here it is how it looks like:
 
 ![GtkTwitterBox in Douane](http://ubuntuone.com/1ZaFx8nsMX0JKWRSBYzW8Y)
 
