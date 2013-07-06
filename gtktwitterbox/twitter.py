@@ -97,16 +97,16 @@ class TweetGrabber(object):
                 tweet_text = "".join(tweet.xpath(".//p//text()")).replace("\xa0", "")
                 if not tweet_id in self.__tweets_cache:
                     # Initialize a new Tweet object
-                #     new_tweet = Tweet(tweet_id,
-                #                       tweet_author_name,
-                #                       tweet_author_screen_name,
-                #                       tweet_timestamp,
-                #                       tweet_author_profile_image_url,
-                #                       tweet_text)
-                #     # Save it to the cache
-                #     self.__tweets_cache.append(tweet_id)
-                #     # Add it to the list that will be forwarded to the callback method
-                #     new_tweets.append(new_tweet)
+                    new_tweet = Tweet(tweet_id,
+                                      tweet_author_name,
+                                      tweet_author_screen_name,
+                                      tweet_timestamp,
+                                      tweet_author_profile_image_url,
+                                      tweet_text)
+                    # Save it to the cache
+                    self.__tweets_cache.append(tweet_id)
+                    # Add it to the list that will be forwarded to the callback method
+                    new_tweets.append(new_tweet)
 
             # If new tweets found fire the callback method
             if len(new_tweets) > 0:
