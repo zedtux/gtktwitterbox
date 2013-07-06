@@ -1,6 +1,5 @@
 import threading
 import urllib.request
-import json
 import os
 import sys
 import socket
@@ -9,6 +8,7 @@ from gi.repository import Gtk
 from gi.repository import GdkPixbuf
 from gi.repository import Gdk
 from . import helpers
+from lxml import etree
 
 ### Compatibility
 # Copied/pasted from https://bitbucket.org/cherrypy/cherrypy/commits/01b6adcb3849
@@ -44,11 +44,11 @@ class Operation(Timer):
 
 class Tweet(object):
 
-    def __init__(self, id, name, screen_name, created_at, user_profile_image_url, text):
+    def __init__(self, id, name, screen_name, timestamp, user_profile_image_url, text):
         self.id = id
         self.name = name
         self.screen_name = screen_name
-        self.created_at = created_at
+        self.timestamp = timestamp
         self.user_profile_image_url = user_profile_image_url
         self.text = text
 
@@ -84,26 +84,29 @@ class TweetGrabber(object):
 
         # Fetch the 5 latest tweet from the given account in JSON
         try:
-            url = "https://api.twitter.com/1/statuses/user_timeline.json?"
-            url += "include_entities=true&include_rts=true&screen_name=%s&count=5" % self.__account
-            response = urllib.request.urlopen(url)
-            content = response.read()
-            data = json.loads(content.decode('utf8'))
+            response = urllib.urlopen("https://twitter.com/%s" % self.__account)
+            html = etree.HTML(response.read())
 
             # Iterate over each tweet and detect new
-            for tweet in data:
-                if not tweet['id'] in self.__tweets_cache:
+            for tweet in html.xpath("//ol[contains(@class, 'stream-items')]/li"):
+                tweet_id = tweet.attrib["data-item-id"]
+                tweet_author_profile_image_url = tweet.xpath(".//a/img[contains(@class, 'avatar')]").attrib["src"]
+                tweet_author_screen_name = tweet.xpath(".//a/strong[contains(@class, 'fullname')]/text()")
+                tweet_author_name = tweet.xpath(".//a/span[contains(@class, 'username')]/text()")
+                tweet_timestamp = tweet.xpath(".//small[contains(@class, 'time')/a/span").text
+                tweet_text = "".join(tweet.xpath(".//p//text()")).replace("\xa0", "")
+                if not tweet_id in self.__tweets_cache:
                     # Initialize a new Tweet object
-                    new_tweet = Tweet(tweet['id'],
-                                      tweet['user']['name'],
-                                      tweet['user']['screen_name'],
-                                      tweet['created_at'],
-                                      tweet['user']['profile_image_url'],
-                                      tweet['text'])
-                    # Save it to the cache
-                    self.__tweets_cache.append(tweet['id'])
-                    # Add it to the list that will be forwarded to the callback method
-                    new_tweets.append(new_tweet)
+                #     new_tweet = Tweet(tweet_id,
+                #                       tweet_author_name,
+                #                       tweet_author_screen_name,
+                #                       tweet_timestamp,
+                #                       tweet_author_profile_image_url,
+                #                       tweet_text)
+                #     # Save it to the cache
+                #     self.__tweets_cache.append(tweet_id)
+                #     # Add it to the list that will be forwarded to the callback method
+                #     new_tweets.append(new_tweet)
 
             # If new tweets found fire the callback method
             if len(new_tweets) > 0:
@@ -209,7 +212,7 @@ class GtkTwitterBox(Gtk.Box):
         label_tweet_header.set_alignment(0.0, 0.5)
         hbox_tweet_header.pack_start(label_tweet_header, True, True, 0)
         # Tweet Since
-        label_tweet_since = Gtk.Label(helpers.distance_of_time_in_words(tweet.created_at))
+        label_tweet_since = Gtk.Label(tweet.timestamp)
         hbox_tweet_header.pack_start(label_tweet_since, False, True, 0)
         vbox_tweet_content.pack_start(hbox_tweet_header, False, True, 0)
 
