@@ -1,8 +1,21 @@
-from gi.repository import Gtk
+#!/usr/bin/env python3
+from gi.repository import Gtk, GLib, Gdk
 from gtktwitterbox.twitter import GtkTwitterBox
 
-class MainWindow(Gtk.Window):
+class MyWindow(Gtk.Window):
 
     def __init__(self):
       Gtk.Window.__init__(self, title="Hello World")
-      GtkTwitterBox(self, "douaneapp", 15)
+      box = Gtk.Box()
+      self.add(box)
+      GtkTwitterBox(box, "douaneapp", 15)
+
+win = MyWindow()
+win.connect("delete-event", Gtk.main_quit)
+win.show_all()
+
+GLib.threads_init()
+Gdk.threads_init()
+Gdk.threads_enter()
+Gtk.main()
+Gdk.threads_leave()

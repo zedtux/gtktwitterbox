@@ -1,6 +1,6 @@
 # From http://ghantoos.org/2008/10/19/creating-a-deb-package-from-a-python-setuppy/
 
-PYTHON=`which python`
+PYTHON=`which python3`
 DESTDIR=/
 BUILDIR=$(CURDIR)/debian/gtktwitterbox
 PROJECT=gtktwitterbox

@@ -7,7 +7,6 @@ from time import sleep
 from gi.repository import Gtk
 from gi.repository import GdkPixbuf
 from gi.repository import Gdk
-from . import helpers
 from lxml import etree
 
 ### Compatibility
@@ -84,16 +83,16 @@ class TweetGrabber(object):
 
         # Fetch the 5 latest tweet from the given account in JSON
         try:
-            response = urllib.urlopen("https://twitter.com/%s" % self.__account)
+            response = urllib.request.urlopen("https://twitter.com/%s" % self.__account)
             html = etree.HTML(response.read())
 
             # Iterate over each tweet and detect new
-            for tweet in html.xpath("//ol[contains(@class, 'stream-items')]/li"):
+            for tweet in html.xpath("//ol[contains(@class, 'stream-items')]/li[position() <= 5]"):
                 tweet_id = tweet.attrib["data-item-id"]
-                tweet_author_profile_image_url = tweet.xpath(".//a/img[contains(@class, 'avatar')]").attrib["src"]
-                tweet_author_screen_name = tweet.xpath(".//a/strong[contains(@class, 'fullname')]/text()")
-                tweet_author_name = tweet.xpath(".//a/span[contains(@class, 'username')]/text()")
-                tweet_timestamp = tweet.xpath(".//small[contains(@class, 'time')/a/span").text
+                tweet_author_profile_image_url = tweet.xpath(".//a/img[contains(@class, 'avatar')]")[0].attrib["src"]
+                tweet_author_screen_name = tweet.xpath(".//a/strong[contains(@class, 'fullname')]/text()")[0]
+                tweet_author_name = tweet.xpath(".//a/span[contains(@class, 'username')]/b/text()")[0]
+                tweet_timestamp = tweet.xpath(".//small[contains(@class, 'time')]/a/span")[0].text
                 tweet_text = "".join(tweet.xpath(".//p//text()")).replace("\xa0", "")
                 if not tweet_id in self.__tweets_cache:
                     # Initialize a new Tweet object
@@ -227,15 +226,15 @@ class GtkTwitterBox(Gtk.Box):
         hbox_tweet_toolbox = Gtk.Box(spacing=12, orientation=Gtk.Orientation.HORIZONTAL)
         # Reply
         label_tweet_reply = Gtk.Label()
-        label_tweet_reply.set_markup('<a href="https://twitter.com/intent/tweet?in_reply_to_status_id=%d">Reply</a>' % tweet.id)
+        label_tweet_reply.set_markup('<a href="https://twitter.com/intent/tweet?in_reply_to_status_id=%s">Reply</a>' % tweet.id)
         hbox_tweet_toolbox.pack_start(label_tweet_reply, False, True, 0)
         # Retweet
         label_tweet_retweet = Gtk.Label()
-        label_tweet_retweet.set_markup('<a href="https://twitter.com/intent/retweet?tweet_id=%d">Retweet</a>' % tweet.id)
+        label_tweet_retweet.set_markup('<a href="https://twitter.com/intent/retweet?tweet_id=%s">Retweet</a>' % tweet.id)
         hbox_tweet_toolbox.pack_start(label_tweet_retweet, False, True, 0)
         # Favorite
         label_tweet_favorite = Gtk.Label()
-        label_tweet_favorite.set_markup('<a href="https://twitter.com/intent/favorite?tweet_id=%d">Favorite</a>' % tweet.id)
+        label_tweet_favorite.set_markup('<a href="https://twitter.com/intent/favorite?tweet_id=%s">Favorite</a>' % tweet.id)
         hbox_tweet_toolbox.pack_start(label_tweet_favorite, False, True, 0)
 
         vbox_tweet_content.pack_start(hbox_tweet_toolbox, False, True, 8)
