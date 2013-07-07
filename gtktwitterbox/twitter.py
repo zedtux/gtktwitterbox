@@ -20,12 +20,19 @@ else:
 
 class Operation(Timer):
     def __init__(self, *args, **kwargs):
+        self._can_run = True
         Timer.__init__(self, *args, **kwargs)
         self.setDaemon(True)
 
+    def abandon_and_stop(self):
+      self._can_run = False
+      self.cancel()
+
     def run(self):
         first_run = True
-        while True:
+        while self._can_run:
+            if not self._can_run: return
+
             self.finished.clear()
 
             # Run immediatly on first run
@@ -71,7 +78,7 @@ class TweetGrabber(object):
         thread.start()
 
     def stop(self):
-        self.__operation.cancel()
+        self.__operation.abandon_and_stop()
 
     def grab(self):
         new_tweets = []
@@ -85,6 +92,7 @@ class TweetGrabber(object):
         try:
             response = urllib.request.urlopen("https://twitter.com/%s" % self.__account)
             html = etree.HTML(response.read())
+            response.close()
 
             # Iterate over each tweet and detect new
             for tweet in html.xpath("//ol[contains(@class, 'stream-items')]/li[position() <= 5]"):
@@ -117,7 +125,7 @@ class TweetGrabber(object):
                 Gdk.threads_leave()
 
         except (urllib.error.HTTPError, socket.gaierror, urllib.error.URLError) as error:
-            print("[TweeterBox] ERROR: " + str(error))
+            print("[GtkTweeterBox] ERROR: " + str(error))
 
 class GtkTwitterBox(Gtk.Box):
 
