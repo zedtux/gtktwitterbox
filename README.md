@@ -12,7 +12,7 @@ It is a part of the [Douane](https://github.com/zedtux/Douane) project.
 
 I'm not a python expert developer, I'm just doing python at home so I didn't spent time to have compliant code with PEP8.
 
-I have plan to do that later on but if an expert is passing here and wants to contribute, it will be welcome!
+I have plan to do that later on but if an expert is passing here and wants to contribute, he will be the welcome!
 
 ## Screenshot
 
