@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name = "gtktwitterbox",
     packages = ["gtktwitterbox"],
-    version = "1.0.0",
+    version = "2.0.0",
     description = "Python library to inject a GTK Box with the latest tweets from an account.",
     author = "Guillaume Hain",
     author_email = "zedtux@zedroot.org",
