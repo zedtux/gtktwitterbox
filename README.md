@@ -51,7 +51,7 @@ GtkTwitterBox(vbox_main, "douaneapp", 15)
 
 ## Contributing
 
-You can contribute to this gem by adding support for new [VCS](http://en.wikipedia.org/wiki/Concurrent_Versions_System) or new frameworks.
+You can contribute to this project by adding support for new [VCS](http://en.wikipedia.org/wiki/Concurrent_Versions_System) or new frameworks.
 
 ### Fork
 
