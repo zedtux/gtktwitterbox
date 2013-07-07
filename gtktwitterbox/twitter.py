@@ -1,6 +1,5 @@
 import threading
 import urllib.request
-import json
 import os
 import sys
 import socket
@@ -8,7 +7,7 @@ from time import sleep
 from gi.repository import Gtk
 from gi.repository import GdkPixbuf
 from gi.repository import Gdk
-from . import helpers
+from lxml import etree
 
 ### Compatibility
 # Copied/pasted from https://bitbucket.org/cherrypy/cherrypy/commits/01b6adcb3849
@@ -21,12 +20,19 @@ else:
 
 class Operation(Timer):
     def __init__(self, *args, **kwargs):
+        self._can_run = True
         Timer.__init__(self, *args, **kwargs)
         self.setDaemon(True)
 
+    def abandon_and_stop(self):
+      self._can_run = False
+      self.cancel()
+
     def run(self):
         first_run = True
-        while True:
+        while self._can_run:
+            if not self._can_run: return
+
             self.finished.clear()
 
             # Run immediatly on first run
@@ -44,11 +50,11 @@ class Operation(Timer):
 
 class Tweet(object):
 
-    def __init__(self, id, name, screen_name, created_at, user_profile_image_url, text):
+    def __init__(self, id, name, screen_name, timestamp, user_profile_image_url, text):
         self.id = id
         self.name = name
         self.screen_name = screen_name
-        self.created_at = created_at
+        self.timestamp = timestamp
         self.user_profile_image_url = user_profile_image_url
         self.text = text
 
@@ -72,7 +78,7 @@ class TweetGrabber(object):
         thread.start()
 
     def stop(self):
-        self.__operation.cancel()
+        self.__operation.abandon_and_stop()
 
     def grab(self):
         new_tweets = []
@@ -84,24 +90,28 @@ class TweetGrabber(object):
 
         # Fetch the 5 latest tweet from the given account in JSON
         try:
-            url = "https://api.twitter.com/1/statuses/user_timeline.json?"
-            url += "include_entities=true&include_rts=true&screen_name=%s&count=5" % self.__account
-            response = urllib.request.urlopen(url)
-            content = response.read()
-            data = json.loads(content.decode('utf8'))
+            response = urllib.request.urlopen("https://twitter.com/%s" % self.__account)
+            html = etree.HTML(response.read())
+            response.close()
 
             # Iterate over each tweet and detect new
-            for tweet in data:
-                if not tweet['id'] in self.__tweets_cache:
+            for tweet in html.xpath("//ol[contains(@class, 'stream-items')]/li[position() <= 5]"):
+                tweet_id = tweet.attrib["data-item-id"]
+                tweet_author_profile_image_url = tweet.xpath(".//a/img[contains(@class, 'avatar')]")[0].attrib["src"]
+                tweet_author_screen_name = tweet.xpath(".//a/strong[contains(@class, 'fullname')]/text()")[0]
+                tweet_author_name = tweet.xpath(".//a/span[contains(@class, 'username')]/b/text()")[0]
+                tweet_timestamp = tweet.xpath(".//small[contains(@class, 'time')]/a/span")[0].text
+                tweet_text = "".join(tweet.xpath(".//p//text()")).replace("\xa0", "")
+                if not tweet_id in self.__tweets_cache:
                     # Initialize a new Tweet object
-                    new_tweet = Tweet(tweet['id'],
-                                      tweet['user']['name'],
-                                      tweet['user']['screen_name'],
-                                      tweet['created_at'],
-                                      tweet['user']['profile_image_url'],
-                                      tweet['text'])
+                    new_tweet = Tweet(tweet_id,
+                                      tweet_author_name,
+                                      tweet_author_screen_name,
+                                      tweet_timestamp,
+                                      tweet_author_profile_image_url,
+                                      tweet_text)
                     # Save it to the cache
-                    self.__tweets_cache.append(tweet['id'])
+                    self.__tweets_cache.append(tweet_id)
                     # Add it to the list that will be forwarded to the callback method
                     new_tweets.append(new_tweet)
 
@@ -115,7 +125,7 @@ class TweetGrabber(object):
                 Gdk.threads_leave()
 
         except (urllib.error.HTTPError, socket.gaierror, urllib.error.URLError) as error:
-            print("[TweeterBox] ERROR: " + str(error))
+            print("[GtkTweeterBox] ERROR: " + str(error))
 
 class GtkTwitterBox(Gtk.Box):
 
@@ -209,7 +219,7 @@ class GtkTwitterBox(Gtk.Box):
         label_tweet_header.set_alignment(0.0, 0.5)
         hbox_tweet_header.pack_start(label_tweet_header, True, True, 0)
         # Tweet Since
-        label_tweet_since = Gtk.Label(helpers.distance_of_time_in_words(tweet.created_at))
+        label_tweet_since = Gtk.Label(tweet.timestamp)
         hbox_tweet_header.pack_start(label_tweet_since, False, True, 0)
         vbox_tweet_content.pack_start(hbox_tweet_header, False, True, 0)
 
@@ -224,15 +234,15 @@ class GtkTwitterBox(Gtk.Box):
         hbox_tweet_toolbox = Gtk.Box(spacing=12, orientation=Gtk.Orientation.HORIZONTAL)
         # Reply
         label_tweet_reply = Gtk.Label()
-        label_tweet_reply.set_markup('<a href="https://twitter.com/intent/tweet?in_reply_to_status_id=%d">Reply</a>' % tweet.id)
+        label_tweet_reply.set_markup('<a href="https://twitter.com/intent/tweet?in_reply_to_status_id=%s">Reply</a>' % tweet.id)
         hbox_tweet_toolbox.pack_start(label_tweet_reply, False, True, 0)
         # Retweet
         label_tweet_retweet = Gtk.Label()
-        label_tweet_retweet.set_markup('<a href="https://twitter.com/intent/retweet?tweet_id=%d">Retweet</a>' % tweet.id)
+        label_tweet_retweet.set_markup('<a href="https://twitter.com/intent/retweet?tweet_id=%s">Retweet</a>' % tweet.id)
         hbox_tweet_toolbox.pack_start(label_tweet_retweet, False, True, 0)
         # Favorite
         label_tweet_favorite = Gtk.Label()
-        label_tweet_favorite.set_markup('<a href="https://twitter.com/intent/favorite?tweet_id=%d">Favorite</a>' % tweet.id)
+        label_tweet_favorite.set_markup('<a href="https://twitter.com/intent/favorite?tweet_id=%s">Favorite</a>' % tweet.id)
         hbox_tweet_toolbox.pack_start(label_tweet_favorite, False, True, 0)
 
         vbox_tweet_content.pack_start(hbox_tweet_toolbox, False, True, 8)
