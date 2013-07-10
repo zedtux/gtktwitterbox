@@ -49,6 +49,8 @@ GtkTwitterBox(vbox_main, "douaneapp", 15)
  - The second argument is the twitter account name
  - The third argument is the interval of time to refresh tweets (in seconds)
 
+You can also have a look at the [test.py](https://github.com/zedtux/gtktwitterbox/blob/master/test.py) file
+
 ## Contributing
 
 You can contribute to this project by adding support for new [VCS](http://en.wikipedia.org/wiki/Concurrent_Versions_System) or new frameworks.
