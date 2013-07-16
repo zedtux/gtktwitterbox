@@ -22,9 +22,19 @@ I am using it for my application [Douane configurator](https://github.com/zedtux
 
 ## Installation
 
-As of now there is no package so the only way is to import this Git repository as submodule in your project.
+### Debian/Ubuntu package
 
-To do so open a terminal in root path of your python project and execute the following:
+The library is now available in a PPA.
+
+    sudo add-apt-repository ppa:zedtux/douane
+    sudo apt-get update
+    sudo apt-get install gtktwitterbox
+
+### Git
+
+You can import this Git repository as submodule in your project.
+
+To do so open a terminal in the root path of your python project and execute the following:
 
     git submodule add git://github.com/zedtux/gtktwitterbox.git gtktwitterbox
 
