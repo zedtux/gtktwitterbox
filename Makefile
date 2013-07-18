@@ -17,7 +17,7 @@ source:
 	$(PYTHON) setup.py sdist $(COMPILE)
 
 install:
-	$(PYTHON) setup.py install --root $(DESTDIR) $(COMPILE)
+	$(PYTHON) setup.py install --root $(DESTDIR) $(COMPILE) --install-layout=deb
 
 buildrpm:
 	$(PYTHON) setup.py bdist_rpm --post-install=rpm/postinstall --pre-uninstall=rpm/preuninstall
