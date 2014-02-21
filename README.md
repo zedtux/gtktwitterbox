@@ -26,7 +26,8 @@ I am using it for my application [Douane configurator](https://github.com/zedtux
 
 The library is now available in a PPA.
 
-    sudo add-apt-repository ppa:zedtux/douane
+    sudo add-apt-repository http://repository.douaneapp.com/
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 874CAFB5
     sudo apt-get update
     sudo apt-get install gtktwitterbox
 
