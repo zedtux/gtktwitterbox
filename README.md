@@ -4,7 +4,9 @@
   </a>
 </p>
 
-# GtkTwitterBox [![endorse](http://api.coderwall.com/zedtux/endorsecount.png)](http://coderwall.com/zedtux)
+# GtkTwitterBox
+
+## ABANDONNED REPOSISOTRY
 
 This GTK 3 module written in python 3.3 will show the 5 latest tweets of a given account and refresh X given seconds.
 
